@@ -47,6 +47,11 @@ btAddTask.parentNode.style = "background-color: #0000FF; padding: 20px"
 
 // btAddTask.className
 
+// Outras funções de captura de elementos
+// document.getElementsByClassName
+// document.getElementsByName
+// document.getElementsByTagName
+// document.getElementsByTagNameNS // ??? Mistério !!!
 
 
 
