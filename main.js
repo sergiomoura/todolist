@@ -72,3 +72,18 @@ const onWindowLoad = (evento) => {
 btSalvar.addEventListener('click', onBtSalvarClick)
 window.addEventListener('load', onWindowLoad)
 
+/**
+ * Questões de Usabilidade:
+ * 1 - O campo já deve iniciar com foco
+ * 2 - Limpar o campo sempre que uma tarefa nova seja adicionada
+ * 
+ * Questões de funcionalidade
+ * 
+ * 1 - Marcar tarefa como feita
+ * 2 - Remover uma tarefa
+ * 
+ * Cada tarefa deve ter um id (identificador único para a tarefa)
+ * 
+ *  */ 
+
+
