@@ -3,26 +3,38 @@ const btSalvar = document.querySelector('#form button[type=submit]');
 const inputTexto = document.getElementById("texto");
 const lista = document.getElementById("task-list");
 
-// Definição das funções que serão executadas (event handlers)
-const onBtSalvarClick = (evento) => {
+// Definições iniciais
+const chaveLocal = 'boxtarefas';
+let tarefas = [];
 
-    evento.preventDefault();
+const addNovaTarefa = (texto) => {
+    
+    // 1 - Criar um objeto tarefa: {texto:"texto digitado", feita: false}
+    let tarefa = {
+        texto,
+        feita: false
+    }
 
-    // 1 - Capturar o texto digitado no campo
-    let texto = inputTexto.value;
+    // 2 - Adicionar esse objeto no array de tarefas;
+    tarefas.push(tarefa);
 
-    // 2 - Criar um objeto tarefa: {texto:"texto digitado", feita: false}
+    // 3 - salvar o array de tarefas no localStorage!
+    localStorage.setItem(chaveLocal, JSON.stringify(tarefas));
 
-    // 3 - Adicionar esse objeto no array de tarefas;
+    // 4 - Retornar a tarefa criada
+    return tarefa;
 
-    // 4 - Adicionar a tarefa na DOM
+}
+
+const showTarefa = (tarefa) => {
+
     // 4.1 Criar o novo li
     let li = document.createElement('li');
 
     // 4.2 Adicionar o conteúdo do li
     li.innerHTML = `
         <input type="checkbox" id="check_1">
-        <label for="check_1">${texto}</label>
+        <label for="check_1">${tarefa.texto}</label>
         <i class="material-icons">delete</i>
     `
 
@@ -30,11 +42,33 @@ const onBtSalvarClick = (evento) => {
     lista.appendChild(li);
 }
 
-const onInputTextoKeyDown = (evento) => {
-   
+const onBtSalvarClick = (evento) => {
+
+    evento.preventDefault();
+    
+    let texto = inputTexto.value;
+
+    let tarefa = addNovaTarefa(texto);
+
+    showTarefa(tarefa);   
+    
+}
+
+const onWindowLoad = (evento) => {
+    // Carregar as tarefas do local storage caso haja...
+    tarefas = JSON.parse(localStorage.getItem(chaveLocal));
+    if(tarefas === null) {
+        tarefas = [];
+        localStorage.setItem(chaveLocal, '[]');
+    }
+
+    // Mostrar as tarefas carregadas...
+    for (const t of tarefas) {
+        showTarefa(t);
+    }
 }
 
 // Conexão do evento à função (event handler)
-// Forma 1 (feia):
-btSalvar.onclick = onBtSalvarClick;
-inputTexto.onkeydown = onInputTextoKeyDown;
+btSalvar.addEventListener('click', onBtSalvarClick)
+window.addEventListener('load', onWindowLoad)
+
