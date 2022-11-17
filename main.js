@@ -50,7 +50,9 @@ const onBtSalvarClick = (evento) => {
 
     let tarefa = addNovaTarefa(texto);
 
-    showTarefa(tarefa);   
+    showTarefa(tarefa);
+
+    inputTexto.value = "";
     
 }
 
@@ -66,6 +68,9 @@ const onWindowLoad = (evento) => {
     for (const t of tarefas) {
         showTarefa(t);
     }
+
+    // Dando foco ao campo de texto
+    inputTexto.focus();
 }
 
 // Conexão do evento à função (event handler)
