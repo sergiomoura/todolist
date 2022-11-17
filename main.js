@@ -8,9 +8,18 @@ const chaveLocal = 'boxtarefas';
 let tarefas = [];
 
 const addNovaTarefa = (texto) => {
+
+    // 0 - Calcular o novo id
+    let novoId;
+    if(tarefas.length == 0){
+        novoId = 1
+    } else {
+        novoId = tarefas[tarefas.length - 1].id + 1;
+    }
     
     // 1 - Criar um objeto tarefa: {texto:"texto digitado", feita: false}
     let tarefa = {
+        id: novoId,
         texto,
         feita: false
     }
