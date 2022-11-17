@@ -35,16 +35,33 @@ const addNovaTarefa = (texto) => {
 
 }
 
+const removerTarefa = (id) =>{
+
+    // Localiza no array de tarefas aquela que tem o id a ser removido
+    let pos = tarefas.findIndex(t => t.id == id);
+
+    // Remove a tarefa da posição encontrada
+    tarefas.splice(pos, 1);
+
+    // Guardando no localStorage o array de tarefas sem a tarefa de id
+    localStorage.setItem(chaveLocal, JSON.stringify(tarefas));
+
+    // Remover a tarefa da DOM.
+    let liDaTarefa = document.getElementById(`li_${id}`);
+    liDaTarefa.remove();
+}
+
 const showTarefa = (tarefa) => {
 
     // 4.1 Criar o novo li
     let li = document.createElement('li');
+    li.setAttribute('id',`li_${tarefa.id}`)
 
     // 4.2 Adicionar o conteúdo do li
     li.innerHTML = `
         <input type="checkbox" id="check_1">
         <label for="check_1">${tarefa.texto}</label>
-        <i class="material-icons">delete</i>
+        <i class="material-icons" onclick="removerTarefa(${tarefa.id})">delete</i>
     `
 
     // 4.3 Adicionar esse novo li na lista
