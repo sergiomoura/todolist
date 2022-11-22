@@ -4,25 +4,35 @@ const inputTexto = document.getElementById("texto");
 const lista = document.getElementById("task-list");
 
 // Definições iniciais
+const urlBase = 'https://todolist-0622.herokuapp.com';
 const chaveLocal = 'boxtarefas';
 let tarefas = [];
 
-const addNovaTarefa = (texto) => {
+const getTarefas = async () => {
+    // Disparando uma requisição para carregar para obter uma resposta
+    let resposta = await fetch(`${urlBase}/tarefas`);
 
-    // 0 - Calcular o novo id
-    let novoId;
-    if(tarefas.length == 0){
-        novoId = 1
-    } else {
-        novoId = tarefas[tarefas.length - 1].id + 1;
+    // Extraindo o conteúdo JSON da resposta
+    tarefas = await resposta.json();
+
+    // Retornando o array de tarefas;
+    return tarefas;
+}
+
+const addNovaTarefa = async (texto) => {
+
+    // 0 - Disparando uma req post para o endereço de criação de tarefas
+    let opcoes = {
+        method: "POST",
+        body: JSON.stringify({texto}),
+        headers: {
+            'Content-Type':'application/json'
+        }
     }
-    
-    // 1 - Criar um objeto tarefa: {texto:"texto digitado", feita: false}
-    let tarefa = {
-        id: novoId,
-        texto,
-        feita: false
-    }
+    let resposta = await fetch(`${urlBase}/tarefas`, opcoes);
+
+    // 1 - Extrair da resposta a tarefa que foi criada no servidor 
+    let tarefa = await resposta.json();
 
     // 2 - Adicionar esse objeto no array de tarefas;
     tarefas.push(tarefa);
@@ -35,31 +45,55 @@ const addNovaTarefa = (texto) => {
 
 }
 
-const removerTarefa = (id) =>{
+const removerTarefa = async (id) =>{
 
-    // Localiza no array de tarefas aquela que tem o id a ser removido
-    let pos = tarefas.findIndex(t => t.id == id);
+    // Disparar uma requisição para urlBase/tarefas/{id} do tipo delete
+    let opcoes = {
+        method: "DELETE"
+    }
+    let resposta = await fetch(`${urlBase}/tarefas/${id}`, opcoes);
 
-    // Remove a tarefa da posição encontrada
-    tarefas.splice(pos, 1);
+    // Verificando se resposta é de sucesso(tarefa foi removida)
+    if(resposta.status == 200) {
 
-    // Guardando no localStorage o array de tarefas sem a tarefa de id
-    localStorage.setItem(chaveLocal, JSON.stringify(tarefas));
+        // Localiza no array de tarefas aquela que tem o id a ser removido
+        let pos = tarefas.findIndex(t => t.id == id);
+    
+        // Remove a tarefa da posição encontrada
+        tarefas.splice(pos, 1);
+    
+        // Guardando no localStorage o array de tarefas sem a tarefa de id
+        localStorage.setItem(chaveLocal, JSON.stringify(tarefas));
+    
+        // Remover a tarefa da DOM.
+        let liDaTarefa = document.getElementById(`li_${id}`);
+        liDaTarefa.remove();
+    }
 
-    // Remover a tarefa da DOM.
-    let liDaTarefa = document.getElementById(`li_${id}`);
-    liDaTarefa.remove();
 }
 
-const alterarTarefa = (id) => {
+const alterarTarefa = async (id) => {
+    // Disparar uma requisição para endereço urlBase/tarefas/{id}/[feita|desfeita]
+
     // Encontra a tarefa que tenha o id procurado
     let tarefa = tarefas.find(t => t.id == id);
 
-    // Altera o status dessa tarefa
-    tarefa.feita = !tarefa.feita;
+    // IF ternário para decidir a url para onde enviar a req
+    let url = tarefa.feita ? `${urlBase}/tarefas/${id}/desfeita` : `${urlBase}/tarefas/${id}/feita`;
 
-    // Salvo o array de tarefas no localStorage
-    localStorage.setItem(chaveLocal, JSON.stringify(tarefas));
+    // Disparar a requisição e capturar a resposta
+    let opcoes = {
+        method: "PATCH"
+    }
+    let resposta = await fetch(url, opcoes);
+
+    if(resposta.status == 200) {
+        // Altera o status dessa tarefa
+        tarefa.feita = !tarefa.feita;
+    
+        // Salvo o array de tarefas no localStorage
+        localStorage.setItem(chaveLocal, JSON.stringify(tarefas));
+    }
 }
 
 const showTarefa = (tarefa) => {
@@ -81,13 +115,13 @@ const showTarefa = (tarefa) => {
     lista.appendChild(li);
 }
 
-const onBtSalvarClick = (evento) => {
+const onBtSalvarClick = async (evento) => {
 
     evento.preventDefault();
     
     let texto = inputTexto.value;
 
-    let tarefa = addNovaTarefa(texto);
+    let tarefa = await addNovaTarefa(texto);
 
     showTarefa(tarefa);
 
@@ -95,13 +129,17 @@ const onBtSalvarClick = (evento) => {
     
 }
 
-const onWindowLoad = (evento) => {
+const onWindowLoad = async (evento) => {
+
+    // Carregando tarefas do servidor
+    let tarefas = await getTarefas();
+
     // Carregar as tarefas do local storage caso haja...
-    tarefas = JSON.parse(localStorage.getItem(chaveLocal));
-    if(tarefas === null) {
-        tarefas = [];
-        localStorage.setItem(chaveLocal, '[]');
-    }
+    // tarefas = JSON.parse(localStorage.getItem(chaveLocal));
+    // if(tarefas === null) {
+    //     tarefas = [];
+    //     localStorage.setItem(chaveLocal, '[]');
+    // }
 
     // Mostrar as tarefas carregadas...
     for (const t of tarefas) {
