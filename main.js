@@ -132,7 +132,7 @@ const onBtSalvarClick = async (evento) => {
 const onWindowLoad = async (evento) => {
 
     // Carregando tarefas do servidor
-    let tarefas = await getTarefas();
+    tarefas = await getTarefas();
 
     // Carregar as tarefas do local storage caso haja...
     // tarefas = JSON.parse(localStorage.getItem(chaveLocal));
@@ -148,11 +148,26 @@ const onWindowLoad = async (evento) => {
 
     // Dando foco ao campo de texto
     inputTexto.focus();
+
+    // Iniciando loop de carga
+    setInterval(
+        async ()=>{
+            tarefas = await getTarefas();
+            lista.innerHTML = '';
+            for (const t of tarefas) {
+                showTarefa(t);
+            }
+        },
+        1000
+    )
 }
 
 // Conexão do evento à função (event handler)
 btSalvar.addEventListener('click', onBtSalvarClick)
 window.addEventListener('load', onWindowLoad)
+
+
+
 
 /**
  * Questões de Usabilidade:
